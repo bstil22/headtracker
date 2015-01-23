@@ -1,0 +1,56 @@
+<script src="js/headtrackr.js"></script>
+<canvas id="inputCanvas" width="320" height="240" style="display:none"></canvas>
+<video id="inputVideo" autoplay loop></video>
+</head>
+
+<script type="text/javascript">
+var videoInput = document.getElementById('inputVideo');
+var canvasInput = document.getElementById('inputCanvas');
+
+var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+// create Oscillator and gain node
+var oscillator = audioCtx.createOscillator();
+var gainNode = audioCtx.createGain();
+
+// connect oscillator to gain node to speakers
+
+oscillator.connect(gainNode);
+gainNode.connect(audioCtx.destination);
+
+// create initial theremin frequency and volumn values
+// set options for the oscillator
+// var WIDTH = window.innerWidth;
+// var HEIGHT = window.innerHeight;
+
+var maxFreq = 500;
+var maxVol = 0.02;
+
+var initialFreq = 120;
+var initialVol = 0.001;
+
+oscillator.type = 'sawtooth';
+oscillator.frequency.value = initialFreq; // value in hertz
+oscillator.detune.value = 100; // value in cents
+oscillator.start();
+
+var htracker = new headtrackr.Tracker({detectionInterval : 20});
+htracker.init(videoInput, canvasInput);
+htracker.start();
+
+var context = new AudioContext();
+document.addEventListener('headtrackingEvent',  function(head){
+  var xcoord = head.x;
+  var ycoord = head.y;
+  var coordinates = [xcoord,ycoord];
+  console.log(xcoord);
+//oscillator.frequency = xcoord
+    oscillator.frequency.value = (xcoord + 15) * 20;
+
+  // if(ycoord < 10){
+  //   oscillator.frequency.value -= ycoord;
+  // }else if(ycoord > 10){
+  //   oscillator.frequency.value += ycoord;
+  // }
+});
+</script>
